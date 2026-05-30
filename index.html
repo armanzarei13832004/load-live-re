@@ -1,334 +1,477 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>محاسبه بار زنده کاهش‌یافته</title>
+  <title>محاسبه کاهش بار زنده | بام و طبقات</title>
   <style>
     :root{
       --bg1:#0f172a;
-      --bg2:#1e293b;
-      --card:rgba(255,255,255,.08);
-      --txt:#e2e8f0;
-      --muted:#94a3b8;
-      --primary:#3b82f6;
-      --primary-2:#2563eb;
-      --success:#22c55e;
-      --danger:#ef4444;
-      --ring: rgba(59,130,246,.45);
+      --bg2:#111827;
+      --bg3:#1e293b;
+      --glass:rgba(255,255,255,.12);
+      --glass-2:rgba(255,255,255,.08);
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --primary:#2563eb;
+      --primary-hover:#1d4ed8;
+      --success:#16a34a;
+      --warning:#f59e0b;
+      --danger:#dc2626;
+      --radius:20px;
+      --shadow:0 16px 40px rgba(0,0,0,.22);
+      --ring:0 0 0 4px rgba(37,99,235,.15);
     }
 
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: "Vazirmatn", "Tahoma", sans-serif;
-      color:var(--txt);
-      min-height:100vh;
+      font-family:"Vazirmatn","IRANSans",Tahoma,sans-serif;
       background:
-        radial-gradient(1200px 600px at 10% 10%, #1d4ed8 0%, transparent 50%),
-        radial-gradient(1000px 500px at 90% 90%, #0ea5e9 0%, transparent 45%),
-        linear-gradient(135deg,var(--bg1),var(--bg2));
+        radial-gradient(900px 450px at 8% 8%, #1d4ed8 0%, transparent 50%),
+        radial-gradient(800px 420px at 92% 90%, #0ea5e9 0%, transparent 50%),
+        linear-gradient(135deg,var(--bg1),var(--bg3) 55%,var(--bg2));
+      min-height:100vh;
       display:flex;
-      align-items:center;
       justify-content:center;
+      align-items:center;
       padding:24px;
+      color:#fff;
     }
 
-    .wrap{
-      width:min(900px, 100%);
-      background:var(--card);
-      border:1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(10px);
-      border-radius:24px;
-      padding:24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-      animation: fadeIn .8s ease;
+    .app{
+      width:min(1080px,100%);
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:20px;
+      animation:fadeIn .8s ease;
     }
-
     @keyframes fadeIn{
-      from{opacity:0; transform:translateY(18px)}
-      to{opacity:1; transform:translateY(0)}
+      from{opacity:0;transform:translateY(16px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @media (max-width: 920px){
+      .app{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:var(--card);
+      color:var(--text);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-120px auto auto -120px;
+      width:240px;height:240px;border-radius:50%;
+      background:radial-gradient(circle, rgba(37,99,235,.16), transparent 70%);
+      pointer-events:none;
     }
 
     h1{
       margin:0 0 8px;
-      font-size: clamp(22px, 3vw, 32px);
-      font-weight: 800;
-      letter-spacing:.3px;
+      font-size:1.35rem;
+      font-weight:900;
     }
-    .sub{
-      margin:0 0 18px;
+    .subtitle{
+      margin:0 0 16px;
       color:var(--muted);
-      font-size:14px;
+      font-size:.95rem;
+      line-height:1.9;
     }
 
     .mode{
       display:flex;
-      gap:12px;
-      margin-bottom:18px;
+      gap:10px;
       flex-wrap:wrap;
+      margin-bottom:14px;
     }
-
     .chip{
-      position:relative;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.25);
-      border-radius:14px;
+      border:1px solid #cbd5e1;
+      background:#f8fafc;
+      color:#0f172a;
+      border-radius:12px;
       padding:10px 14px;
       cursor:pointer;
-      user-select:none;
-      transition:.25s ease;
+      font-weight:700;
       display:flex;
       align-items:center;
       gap:8px;
-      background:rgba(255,255,255,.04);
+      transition:.22s;
+      user-select:none;
     }
     .chip input{display:none}
-    .chip:hover{
-      transform:translateY(-2px);
-      border-color:rgba(255,255,255,.45);
-      box-shadow:0 8px 22px rgba(0,0,0,.25);
-    }
+    .chip:hover{transform:translateY(-1px)}
     .chip.active{
-      background:linear-gradient(135deg, rgba(59,130,246,.35), rgba(14,165,233,.25));
-      border-color:rgba(125,211,252,.65);
+      border-color:#93c5fd;
+      background:linear-gradient(135deg,#dbeafe,#eff6ff);
+      box-shadow:0 8px 20px rgba(37,99,235,.14);
+    }
+
+    .alert{
+      border:1px solid #fde68a;
+      background:#fffbeb;
+      color:#92400e;
+      padding:12px 14px;
+      border-radius:12px;
+      margin-bottom:14px;
+      font-size:.9rem;
+      line-height:1.9;
     }
 
     .grid{
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-columns:1fr 1fr;
       gap:14px;
     }
-    @media(max-width:700px){
+    @media (max-width:560px){
       .grid{grid-template-columns:1fr}
     }
 
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
+    .field{display:flex;flex-direction:column}
+    .hidden{display:none !important}
+
     label{
-      font-size:13px;
-      color:#cbd5e1;
+      font-size:.9rem;
+      color:#334155;
+      margin-bottom:6px;
+      display:block;
+      font-weight:700;
     }
     input, select{
       width:100%;
-      border:1px solid rgba(255,255,255,.2);
-      background:rgba(15,23,42,.45);
-      color:var(--txt);
+      border:1px solid #cbd5e1;
       border-radius:12px;
-      padding:12px 12px;
+      padding:11px 12px;
+      font-size:.95rem;
       outline:none;
-      transition:.22s ease;
-      font-size:14px;
+      background:#fff;
+      transition:.2s border-color,.2s box-shadow,.2s transform;
     }
     input:focus, select:focus{
-      border-color:#60a5fa;
-      box-shadow: 0 0 0 4px var(--ring);
+      border-color:#93c5fd;
+      box-shadow:var(--ring);
+      transform:translateY(-1px);
     }
 
-    .hidden{display:none !important}
+    .kll-box{
+      margin-top:8px;
+      padding:10px;
+      border:1px dashed #cbd5e1;
+      border-radius:10px;
+      background:#f8fafc;
+      font-size:.87rem;
+      color:#334155;
+    }
 
     .actions{
-      margin-top:18px;
+      margin-top:16px;
       display:flex;
-      gap:12px;
+      gap:10px;
       flex-wrap:wrap;
     }
-
-    .btn{
-      position:relative;
-      overflow:hidden;
+    button{
       border:none;
-      border-radius:14px;
-      padding:12px 18px;
-      font-size:14px;
-      font-weight:700;
-      color:white;
+      border-radius:12px;
+      padding:11px 16px;
+      font-size:.95rem;
       cursor:pointer;
-      transition:.28s ease;
-      transform:translateY(0);
+      font-weight:800;
+      transition:.2s;
     }
-    .btn::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(120deg, transparent 20%, rgba(255,255,255,.28), transparent 80%);
-      transform:translateX(-120%);
-      transition:transform .65s ease;
-    }
-    .btn:hover::after{transform:translateX(120%)}
-    .btn:hover{transform:translateY(-2px); filter:brightness(1.05)}
-    .btn:active{transform:translateY(0)}
-
     .btn-primary{
-      background:linear-gradient(135deg,var(--primary),var(--primary-2));
-      box-shadow:0 10px 24px rgba(37,99,235,.45);
+      background:linear-gradient(135deg,var(--primary),#1e40af);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(37,99,235,.28);
     }
-    .btn-ghost{
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.2);
-      color:#dbeafe;
+    .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.04)}
+    .btn-secondary{
+      background:#e2e8f0;
+      color:#0f172a;
     }
 
-    .result{
-      margin-top:16px;
-      background:rgba(2,6,23,.55);
-      border:1px solid rgba(255,255,255,.15);
+    .result-card{
+      background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+      border:1px solid #e2e8f0;
       border-radius:14px;
       padding:14px;
-      min-height:54px;
-      line-height:1.8;
-      transition:.25s ease;
+      margin-top:14px;
+      display:none;
     }
-    .ok{border-color:rgba(34,197,94,.5); color:#bbf7d0}
-    .err{border-color:rgba(239,68,68,.5); color:#fecaca}
-    .muted{color:var(--muted)}
+    .result-title{margin:0 0 8px;font-size:1rem;font-weight:900}
+    .result-line{margin:6px 0;color:#1e293b;font-size:.95rem;line-height:1.9}
+    .badge{
+      display:inline-block;font-size:.82rem;padding:5px 9px;border-radius:999px;font-weight:800;margin-top:8px
+    }
+    .ok{background:#dcfce7;color:#166534}
+    .warn{background:#fef3c7;color:#92400e}
+    .danger{background:#fee2e2;color:#991b1b}
+
+    .footer-note{margin-top:14px;color:#64748b;font-size:.82rem;line-height:1.9}
+
+    .side{
+      background:var(--glass);
+      color:#e2e8f0;
+      border:1px solid rgba(255,255,255,.22);
+      backdrop-filter:blur(10px);
+    }
+    .side h2{margin:0 0 10px;font-size:1.05rem;color:#fff}
+    .side p,.side li{color:#dbeafe;line-height:1.9;font-size:.92rem}
+    .side ul{margin:8px 0 0;padding-right:18px}
+    code{background:#eef2ff;color:#1e3a8a;padding:2px 6px;border-radius:8px}
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <h1>محاسبه بار زنده کاهش‌یافته</h1>
-    <p class="sub">حالت محاسبه را انتخاب کنید: <b>بام</b> یا <b>طبقات</b></p>
+  <div class="app">
+    <section class="card">
+      <h1>اپلیکیشن محاسبه کاهش بار زنده</h1>
+      <p class="subtitle">ابتدا حالت محاسبه را انتخاب کنید: <b>طبقات</b> یا <b>بام</b></p>
 
-    <section class="mode">
-      <label class="chip active" id="chipRoof">
-        <input type="radio" name="mode" value="roof" checked />
-        🏠 بام
-      </label>
-      <label class="chip" id="chipFloor">
-        <input type="radio" name="mode" value="floor" />
-        🏢 طبقات
-      </label>
+      <div class="mode">
+        <label class="chip active" id="chipFloor">
+          <input type="radio" name="mode" value="floor" checked> 🏢 طبقات
+        </label>
+        <label class="chip" id="chipRoof">
+          <input type="radio" name="mode" value="roof"> 🏠 بام
+        </label>
+      </div>
+
+      <div class="alert">
+        کاهش بار زنده در محل اجتماع، ازدحام و محل پارک خودرو مجاز نیست.<br>
+        حداکثر سطح بارگیر دال‌های یک‌طرفه: حاصل‌ضرب دهانه دال در عرضی برابر با 1.5 برابر دهانه دال.
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="L0">L0</label>
+          <input type="number" id="L0" step="any" min="0" placeholder="مثلاً 4.8 یا برای بام 1.2" />
+        </div>
+        <div class="field">
+          <label for="AT">AT</label>
+          <input type="number" id="AT" step="any" min="0" placeholder="مثلاً 12 یا 24" />
+        </div>
+
+        <!-- فقط حالت بام -->
+        <div class="field hidden" id="roofSlopeWrap">
+          <label for="S">شیب بام S (درجه)</label>
+          <input type="number" id="S" step="any" min="0" placeholder="مثلاً 20" />
+        </div>
+      </div>
+
+      <!-- فقط حالت طبقات -->
+      <div style="margin-top:14px;" id="floorFields">
+        <label for="memberType">نوع عضو (برای تعیین KLL)</label>
+        <select id="memberType">
+          <option value="" disabled selected>انتخاب کنید...</option>
+          <option value="4">ستون داخلی (KLL=4)</option>
+          <option value="4">ستون خارجی بدون دال طره‌ای (KLL=4)</option>
+          <option value="3">ستون کناری با دال طره‌ای (KLL=3)</option>
+          <option value="2">ستون گوشه‌ای با دال طره‌ای (KLL=2)</option>
+          <option value="2">تیر کناری بدون دال طره‌ای (KLL=2)</option>
+          <option value="2">تیر داخلی (KLL=2)</option>
+          <option value="1">سایر اعضا (KLL=1)</option>
+        </select>
+        <div class="kll-box" id="kllInfo">KLL انتخاب‌شده: -</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="calcBtn">محاسبه</button>
+        <button class="btn-secondary" id="resetBtn">پاک کردن</button>
+      </div>
+
+      <div class="result-card" id="resultBox">
+        <p class="result-title">نتیجه</p>
+        <p class="result-line" id="line1"></p>
+        <p class="result-line" id="line2"></p>
+        <p class="result-line" id="line3"></p>
+        <span class="badge" id="statusBadge"></span>
+      </div>
+
+      <div class="footer-note" id="formulaNote">
+        حالت طبقات: <code>L = L0 × (0.25 + 4.57 / √(KLL×AT))</code> (با شرط‌ها)
+      </div>
     </section>
 
-    <section class="grid">
-      <div class="field">
-        <label for="L0">L0</label>
-        <input id="L0" type="number" step="any" placeholder="مثلاً 1.2" />
-      </div>
-
-      <div class="field">
-        <label for="AT">At</label>
-        <input id="AT" type="number" step="any" placeholder="مثلاً 24" />
-      </div>
-
-      <div class="field" id="roofSlopeField">
-        <label for="S">شیب بام (درجه)</label>
-        <input id="S" type="number" step="any" placeholder="مثلاً 20" />
-      </div>
-
-      <div class="field hidden" id="floorKllField">
-        <label for="KLL">KLL (نمونه برای طبقات)</label>
-        <input id="KLL" type="number" step="any" placeholder="مثلاً 4" />
-      </div>
-    </section>
-
-    <div class="actions">
-      <button class="btn btn-primary" id="calcBtn">محاسبه</button>
-      <button class="btn btn-ghost" id="resetBtn">پاک کردن</button>
-    </div>
-
-    <div id="result" class="result muted">نتیجه اینجا نمایش داده می‌شود.</div>
-  </main>
+    <aside class="card side">
+      <h2>راهنما</h2>
+      <p><b>طبقات:</b></p>
+      <ul>
+        <li>اگر <b>L0 ≥ 5</b> → پیام هشدار (طبق منطق کد شما)</li>
+        <li>اگر <b>KLL×AT ≥ 37</b> → فرمول اعمال می‌شود</li>
+        <li>اگر خروجی کمتر از <b>0.4×L0</b> باشد → <b>L = L0</b></li>
+      </ul>
+      <p><b>بام:</b></p>
+      <ul>
+        <li>بازه مجاز <b>0.6 ≤ L0 ≤ 1.5</b></li>
+        <li><b>R2</b> تابع شیب بام S</li>
+        <li><b>R1</b> تابع AT</li>
+        <li>فرمول: <code>L = L0 × R1 × R2</code></li>
+      </ul>
+    </aside>
+  </div>
 
   <script>
-    const chipRoof = document.getElementById("chipRoof");
+    // Elements
     const chipFloor = document.getElementById("chipFloor");
-    const roofSlopeField = document.getElementById("roofSlopeField");
-    const floorKllField = document.getElementById("floorKllField");
+    const chipRoof = document.getElementById("chipRoof");
+    const modeInputs = document.querySelectorAll('input[name="mode"]');
+
+    const floorFields = document.getElementById("floorFields");
+    const roofSlopeWrap = document.getElementById("roofSlopeWrap");
+    const formulaNote = document.getElementById("formulaNote");
 
     const L0El = document.getElementById("L0");
     const ATEl = document.getElementById("AT");
     const SEl = document.getElementById("S");
-    const KLLEl = document.getElementById("KLL");
+    const memberType = document.getElementById("memberType");
+    const kllInfo = document.getElementById("kllInfo");
 
-    const resultEl = document.getElementById("result");
     const calcBtn = document.getElementById("calcBtn");
     const resetBtn = document.getElementById("resetBtn");
 
-    let mode = "roof"; // roof | floor
+    const resultBox = document.getElementById("resultBox");
+    const line1 = document.getElementById("line1");
+    const line2 = document.getElementById("line2");
+    const line3 = document.getElementById("line3");
+    const statusBadge = document.getElementById("statusBadge");
+
+    let mode = "floor"; // floor | roof
 
     function setMode(newMode){
       mode = newMode;
-      chipRoof.classList.toggle("active", mode === "roof");
+      document.querySelector(`input[name="mode"][value="${mode}"]`).checked = true;
+
       chipFloor.classList.toggle("active", mode === "floor");
+      chipRoof.classList.toggle("active", mode === "roof");
 
-      roofSlopeField.classList.toggle("hidden", mode !== "roof");
-      floorKllField.classList.toggle("hidden", mode !== "floor");
+      floorFields.classList.toggle("hidden", mode !== "floor");
+      roofSlopeWrap.classList.toggle("hidden", mode !== "roof");
 
-      resultEl.className = "result muted";
-      resultEl.textContent = "نتیجه اینجا نمایش داده می‌شود.";
+      if(mode === "floor"){
+        formulaNote.innerHTML = 'حالت طبقات: <code>L = L0 × (0.25 + 4.57 / √(KLL×AT))</code> (با شرط‌ها)';
+      }else{
+        formulaNote.innerHTML = 'حالت بام: <code>L = L0 × R1 × R2</code> | R1 تابع AT و R2 تابع شیب بام';
+      }
+
+      clearResult();
     }
 
-    chipRoof.addEventListener("click", () => setMode("roof"));
+    function clearResult(){
+      resultBox.style.display = "none";
+      line1.textContent = "";
+      line2.textContent = "";
+      line3.textContent = "";
+      statusBadge.textContent = "";
+      statusBadge.className = "badge";
+    }
+
+    function showResult(l1, l2, l3, badgeText, badgeClass){
+      resultBox.style.display = "block";
+      line1.textContent = l1 || "";
+      line2.textContent = l2 || "";
+      line3.textContent = l3 || "";
+      statusBadge.textContent = badgeText || "";
+      statusBadge.className = `badge ${badgeClass || ""}`.trim();
+    }
+
+    memberType.addEventListener("change", () => {
+      kllInfo.textContent = `KLL انتخاب‌شده: ${memberType.value || "-"}`;
+    });
+
+    modeInputs.forEach(inp => inp.addEventListener("change", e => setMode(e.target.value)));
     chipFloor.addEventListener("click", () => setMode("floor"));
-
-    function showError(msg){
-      resultEl.className = "result err";
-      resultEl.textContent = "❌ " + msg;
-    }
-    function showOk(msg){
-      resultEl.className = "result ok";
-      resultEl.textContent = "✅ " + msg;
-    }
+    chipRoof.addEventListener("click", () => setMode("roof"));
 
     calcBtn.addEventListener("click", () => {
-      const L0 = parseFloat(L0El.value);
-      const AT = parseFloat(ATEl.value);
+      const L0 = parseFloat((L0El.value || "").trim());
+      const AT = parseFloat((ATEl.value || "").trim());
 
-      if (Number.isNaN(L0) || Number.isNaN(AT)){
-        showError("لطفاً L0 و At را به صورت عددی وارد کنید.");
+      if (Number.isNaN(L0) || Number.isNaN(AT) || L0 < 0 || AT < 0){
+        showResult("لطفاً L0 و AT را صحیح وارد کنید.", "", "", "خطا", "danger");
         return;
       }
 
-      if (mode === "roof"){
-        const S = parseFloat(SEl.value);
+      if(mode === "floor"){
+        // منطق کد اول (طبقات)
+        const KLL = parseFloat(memberType.value);
+        if (Number.isNaN(KLL)){
+          showResult("لطفاً نوع عضو (KLL) را انتخاب کنید.", "", "", "خطا", "danger");
+          return;
+        }
+
+        let L = L0;
+        let messages = [];
+
+        if (L0 >= 5){
+          messages.push("کاهش بار زنده با این مقدار L0 مجاز نیست.");
+        }
+
+        const product = KLL * AT;
+        if (product >= 37){
+          const calcL = L0 * (0.25 + 4.57 / Math.sqrt(product));
+          if (calcL >= 0.4 * L0){
+            L = calcL;
+            messages.push("فرمول کاهش بار زنده اعمال شد.");
+          }else{
+            L = L0;
+            messages.push("به دلیل کمتر بودن از حد مجاز، L برابر L0 در نظر گرفته شد.");
+          }
+        }else{
+          L = L0;
+          messages.push("چون KLL×AT کمتر از 37 است، کاهش بار اعمال نشد.");
+        }
+
+        showResult(
+          `KLL × AT = ${product.toFixed(3)}`,
+          `مقدار نهایی L = ${L.toFixed(4)}`,
+          messages.join(" | "),
+          L === L0 ? "بدون کاهش" : "کاهش اعمال شد",
+          L === L0 ? "warn" : "ok"
+        );
+
+      } else {
+        // منطق کد دوم (بام) - نسخه اصلاح‌شده از پایتون
+        const S = parseFloat((SEl.value || "").trim());
         if (Number.isNaN(S)){
-          showError("لطفاً شیب بام را وارد کنید.");
+          showResult("لطفاً شیب بام (S) را وارد کنید.", "", "", "خطا", "danger");
           return;
         }
 
         if (!(L0 >= 0.6 && L0 <= 1.5)){
-          showError("برای بام، L0 باید بین 0.6 تا 1.5 باشد.");
+          showResult(
+            "مقدار L0 برای بام باید بین 0.6 تا 1.5 باشد.",
+            "",
+            "",
+            "خارج از بازه",
+            "danger"
+          );
           return;
         }
 
         let R2;
-        if (S <= 33){
-          R2 = 1;
-        } else if (S > 33 && S < 100){
-          R2 = 1.2 - 0.006 * S;
-        } else {
-          R2 = 0.6;
-        }
+        if (S <= 33) R2 = 1;
+        else if (S > 33 && S < 100) R2 = 1.2 - 0.006 * S;
+        else R2 = 0.6;
 
         let R1;
-        if (AT <= 18){
-          R1 = 1;
-        } else if (AT > 18 && AT <= 54){
-          R1 = 0.8;
-        } else {
-          R1 = 0.6;
-        }
+        if (AT <= 18) R1 = 1;
+        else if (AT <= 54) R1 = 0.8;
+        else R1 = 0.6;
 
         const L = L0 * R1 * R2;
-        showOk(`بار زنده کاهش‌یافته بام: L = ${L.toFixed(4)}   (R1=${R1.toFixed(3)}, R2=${R2.toFixed(3)})`);
-      } else {
-        // حالت طبقات (نمونه) - این قسمت را با کد واقعی قبلی‌ات جایگزین کن
-        const KLL = parseFloat(KLLEl.value);
-        if (Number.isNaN(KLL)){
-          showError("برای حالت طبقات، مقدار KLL را وارد کنید.");
-          return;
-        }
 
-        // فرمول نمونه:
-        // L = L0 * (0.25 + 15 / sqrt(KLL*AT))  (صرفاً نمایشی)
-        const factor = 0.25 + 15 / Math.sqrt(KLL * AT);
-        const L = L0 * Math.min(1, factor);
-
-        showOk(`بار زنده کاهش‌یافته طبقات (نمونه): L = ${L.toFixed(4)}  |  ضریب=${Math.min(1, factor).toFixed(4)}`);
+        showResult(
+          `R1 = ${R1.toFixed(3)} | R2 = ${R2.toFixed(3)}`,
+          `بار زنده کاهش‌یافته بام: L = ${L.toFixed(4)}`,
+          `فرمول: L = L0 × R1 × R2`,
+          "محاسبه شد",
+          "ok"
+        );
       }
     });
 
@@ -336,10 +479,14 @@
       L0El.value = "";
       ATEl.value = "";
       SEl.value = "";
-      KLLEl.value = "";
-      resultEl.className = "result muted";
-      resultEl.textContent = "نتیجه اینجا نمایش داده می‌شود.";
+      memberType.selectedIndex = 0;
+      kllInfo.textContent = "KLL انتخاب‌شده: -";
+      clearResult();
+      setMode("floor");
     });
+
+    // init
+    setMode("floor");
   </script>
 </body>
 </html>
