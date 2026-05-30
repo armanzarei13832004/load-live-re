@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>محاسبات بار زنده کاهش‌یافته و بار برف</title>
+  <title>محاسبه کاهش بار زنده و بار برف</title>
   <style>
     :root{
       --bg1:#0f172a;
       --bg2:#111827;
       --bg3:#1e293b;
       --glass:rgba(255,255,255,.12);
+      --glass-2:rgba(255,255,255,.08);
       --card:#ffffff;
       --text:#0f172a;
       --muted:#475569;
@@ -34,22 +35,24 @@
       min-height:100vh;
       display:flex;
       justify-content:center;
-      align-items:flex-start;
+      align-items:center;
       padding:24px;
       color:#fff;
     }
 
     .app{
-      width:min(1200px,100%);
+      width:min(1080px,100%);
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns:1.2fr .8fr;
       gap:20px;
       animation:fadeIn .8s ease;
     }
-
     @keyframes fadeIn{
       from{opacity:0;transform:translateY(16px)}
       to{opacity:1;transform:translateY(0)}
+    }
+    @media (max-width: 920px){
+      .app{grid-template-columns:1fr}
     }
 
     .card{
@@ -61,7 +64,6 @@
       position:relative;
       overflow:hidden;
     }
-
     .card::before{
       content:"";
       position:absolute;
@@ -71,54 +73,16 @@
       pointer-events:none;
     }
 
-    h1,h2{
+    h1{
       margin:0 0 8px;
+      font-size:1.35rem;
       font-weight:900;
     }
-    h1{font-size:1.4rem}
-    h2{font-size:1.2rem}
-
     .subtitle{
       margin:0 0 16px;
       color:var(--muted);
       font-size:.95rem;
       line-height:1.9;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-    @media (max-width:760px){
-      .grid{grid-template-columns:1fr}
-    }
-
-    .field{display:flex;flex-direction:column}
-    .hidden{display:none !important}
-
-    label{
-      font-size:.9rem;
-      color:#334155;
-      margin-bottom:6px;
-      display:block;
-      font-weight:700;
-    }
-
-    input, select{
-      width:100%;
-      border:1px solid #cbd5e1;
-      border-radius:12px;
-      padding:11px 12px;
-      font-size:.95rem;
-      outline:none;
-      background:#fff;
-      transition:.2s border-color,.2s box-shadow,.2s transform;
-    }
-    input:focus, select:focus{
-      border-color:#93c5fd;
-      box-shadow:var(--ring);
-      transform:translateY(-1px);
     }
 
     .mode{
@@ -142,6 +106,7 @@
       user-select:none;
     }
     .chip input{display:none}
+    .chip:hover{transform:translateY(-1px)}
     .chip.active{
       border-color:#93c5fd;
       background:linear-gradient(135deg,#dbeafe,#eff6ff);
@@ -157,6 +122,41 @@
       margin-bottom:14px;
       font-size:.9rem;
       line-height:1.9;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    @media (max-width:560px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .field{display:flex;flex-direction:column}
+    .hidden{display:none !important}
+
+    label{
+      font-size:.9rem;
+      color:#334155;
+      margin-bottom:6px;
+      display:block;
+      font-weight:700;
+    }
+    input, select{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      padding:11px 12px;
+      font-size:.95rem;
+      outline:none;
+      background:#fff;
+      transition:.2s border-color,.2s box-shadow,.2s transform;
+    }
+    input:focus, select:focus{
+      border-color:#93c5fd;
+      box-shadow:var(--ring);
+      transform:translateY(-1px);
     }
 
     .kll-box{
@@ -212,69 +212,155 @@
     .warn{background:#fef3c7;color:#92400e}
     .danger{background:#fee2e2;color:#991b1b}
 
-    code{background:#eef2ff;color:#1e3a8a;padding:2px 6px;border-radius:8px}
-    hr{
-      border:none;
-      border-top:1px solid #e2e8f0;
-      margin:24px 0;
+    .footer-note{margin-top:14px;color:#64748b;font-size:.82rem;line-height:1.9}
+
+    .side{
+      background:var(--glass);
+      color:#e2e8f0;
+      border:1px solid rgba(255,255,255,.22);
+      backdrop-filter:blur(10px);
     }
+    .side h2{margin:0 0 10px;font-size:1.05rem;color:#fff}
+    .side p,.side li{color:#dbeafe;line-height:1.9;font-size:.92rem}
+    .side ul{margin:8px 0 0;padding-right:18px}
+    code{background:#eef2ff;color:#1e3a8a;padding:2px 6px;border-radius:8px}
   </style>
 </head>
 <body>
   <div class="app">
-
-    <!-- بخش 1: بار زنده کاهش یافته -->
     <section class="card">
-      <h1>1) محاسبه بار زنده کاهش‌یافته</h1>
-      <p class="subtitle">ابتدا حالت محاسبه را انتخاب کنید: <b>طبقات</b> یا <b>بام</b></p>
+      <h1>(Producted By Arman Zarei) محاسبات بارگذاری</h1>
+      <p class="subtitle" id="mainSubtitle">ابتدا نوع محاسبه را انتخاب کنید.</p>
 
+      <!-- انتخاب نوع محاسبه -->
       <div class="mode">
-        <label class="chip active" id="chipFloor">
-          <input type="radio" name="mode" value="floor" checked> 🏢 طبقات
+        <label class="chip active" id="chipLive">
+          <input type="radio" name="calcType" value="live" checked> 1) محاسبه بار زنده کاهش‌یافته
         </label>
-        <label class="chip" id="chipRoof">
-          <input type="radio" name="mode" value="roof"> 🏠 بام
+        <label class="chip" id="chipSnow">
+          <input type="radio" name="calcType" value="snow"> 2) محاسبه بار برف
         </label>
       </div>
 
-      <div class="alert">
-        کاهش بار زنده در محل اجتماع، ازدحام و محل پارک خودرو مجاز نیست.<br>
-        حداکثر سطح بارگیر دال‌های یک‌طرفه: حاصل‌ضرب دهانه دال در عرضی برابر با 1.5 برابر دهانه دال.
+      <!-- بخش بار زنده -->
+      <div id="liveSection">
+        <div class="mode">
+          <label class="chip active" id="chipFloor">
+            <input type="radio" name="mode" value="floor" checked> 🏢 طبقات
+          </label>
+          <label class="chip" id="chipRoof">
+            <input type="radio" name="mode" value="roof"> 🏠 بام
+          </label>
+        </div>
+
+        <div class="alert">
+          کاهش بار زنده در محل اجتماع، ازدحام و محل پارک خودرو مجاز نیست.<br>
+          حداکثر سطح بارگیر دال‌های یک‌طرفه: حاصل‌ضرب دهانه دال در عرضی برابر با 1.5 برابر دهانه دال.
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label for="L0">L0</label>
+            <input type="number" id="L0" step="any" min="0" placeholder="مثلاً 4.8 یا برای بام 1.2" />
+          </div>
+          <div class="field">
+            <label for="AT">AT</label>
+            <input type="number" id="AT" step="any" min="0" placeholder="مثلاً 12 یا 24" />
+          </div>
+
+          <!-- فقط حالت بام -->
+          <div class="field hidden" id="roofSlopeWrap">
+            <label for="S">شیب بام S (درجه)</label>
+            <input type="number" id="S" step="any" min="0" placeholder="مثلاً 20" />
+          </div>
+        </div>
+
+        <!-- فقط حالت طبقات -->
+        <div style="margin-top:14px;" id="floorFields">
+          <label for="memberType">نوع عضو (برای تعیین KLL)</label>
+          <select id="memberType">
+            <option value="" disabled selected>انتخاب کنید...</option>
+            <option value="4">ستون داخلی (KLL=4)</option>
+            <option value="4">ستون خارجی بدون دال طره‌ای (KLL=4)</option>
+            <option value="3">ستون کناری با دال طره‌ای (KLL=3)</option>
+            <option value="2">ستون گوشه‌ای با دال طره‌ای (KLL=2)</option>
+            <option value="2">تیر کناری بدون دال طره‌ای (KLL=2)</option>
+            <option value="2">تیر داخلی (KLL=2)</option>
+            <option value="1">سایر اعضا (KLL=1)</option>
+          </select>
+          <div class="kll-box" id="kllInfo">KLL انتخاب‌شده: -</div>
+        </div>
       </div>
 
-      <div class="grid">
-        <div class="field">
-          <label for="L0">L0</label>
-          <input type="number" id="L0" step="any" min="0" placeholder="مثلاً 4.8 یا برای بام 1.2" />
-        </div>
-        <div class="field">
-          <label for="AT">AT</label>
-          <input type="number" id="AT" step="any" min="0" placeholder="مثلاً 12 یا 24" />
+      <!-- بخش بار برف -->
+      <div id="snowSection" class="hidden">
+        <div class="alert">
+          ضرایب بار برف بر اساس ورودی محل، درجه خطر، نوع ناحیه، وضعیت برف‌گیری و شیب بام محاسبه می‌شوند.
         </div>
 
-        <div class="field hidden" id="roofSlopeWrap">
-          <label for="S">شیب بام S (درجه)</label>
-          <input type="number" id="S" step="any" min="0" placeholder="مثلاً 20" />
-        </div>
-      </div>
+        <div class="grid">
+          <div class="field">
+            <label for="locationSel">Location (Ps)</label>
+            <select id="locationSel">
+              <option value="" disabled selected>انتخاب کنید...</option>
+              <option value="0.25">1 → 0.25</option>
+              <option value="0.5">2 → 0.5</option>
+              <option value="1">3 → 1</option>
+              <option value="1.5">4 → 1.5</option>
+              <option value="2">5 → 2</option>
+              <option value="3">6 → 3</option>
+            </select>
+          </div>
 
-      <div style="margin-top:14px;" id="floorFields">
-        <label for="memberType">نوع عضو (برای تعیین KLL)</label>
-        <select id="memberType">
-          <option value="" disabled selected>انتخاب کنید...</option>
-          <option value="4">ستون داخلی (KLL=4)</option>
-          <option value="4">ستون خارجی بدون دال طره‌ای (KLL=4)</option>
-          <option value="3">ستون کناری با دال طره‌ای (KLL=3)</option>
-          <option value="2">ستون گوشه‌ای با دال طره‌ای (KLL=2)</option>
-          <option value="2">تیر کناری بدون دال طره‌ای (KLL=2)</option>
-          <option value="2">تیر داخلی (KLL=2)</option>
-          <option value="1">سایر اعضا (KLL=1)</option>
-        </select>
-        <div class="kll-box" id="kllInfo">KLL انتخاب‌شده: -</div>
+          <div class="field">
+            <label for="dangerSel">Danger (Is)</label>
+            <select id="dangerSel">
+              <option value="" disabled selected>انتخاب کنید...</option>
+              <option value="1.2">1 → 1.2</option>
+              <option value="1.1">2 → 1.1</option>
+              <option value="1">3 → 1.0</option>
+              <option value="0.8">4 → 0.8</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="nahieSel">نوع ناحیه</label>
+            <select id="nahieSel">
+              <option value="" disabled selected>انتخاب کنید...</option>
+              <option value="1">1- پرتراکم</option>
+              <option value="2">2- باز</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="pSel">وضعیت برف‌گیری (P)</label>
+            <select id="pSel">
+              <option value="" disabled selected>انتخاب کنید...</option>
+              <option value="1">1- برف‌گیر</option>
+              <option value="2">2- نیمه‌برف‌گیر</option>
+              <option value="3">3- برف‌ریز</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="aSnow">شیب بام a (درجه)</label>
+            <input type="number" id="aSnow" step="any" min="0" placeholder="مثلاً 25" />
+          </div>
+
+          <div class="field">
+            <label for="L1Snow">L1</label>
+            <input type="number" id="L1Snow" step="any" min="0" placeholder="مثلاً 8" />
+          </div>
+
+          <div class="field">
+            <label for="L2Snow">L2</label>
+            <input type="number" id="L2Snow" step="any" min="0" placeholder="مثلاً 12" />
+          </div>
+        </div>
       </div>
 
       <div class="actions">
-        <button class="btn-primary" id="calcBtn">محاسبه بار زنده</button>
+        <button class="btn-primary" id="calcBtn">محاسبه</button>
         <button class="btn-secondary" id="resetBtn">پاک کردن</button>
       </div>
 
@@ -285,106 +371,66 @@
         <p class="result-line" id="line3"></p>
         <span class="badge" id="statusBadge"></span>
       </div>
-    </section>
 
-    <!-- بخش 2: بار برف -->
-    <section class="card">
-      <h2>2) محاسبه بار برف</h2>
-      <p class="subtitle">ورودی‌ها را مطابق گزینه‌های تعریف‌شده انتخاب کنید.</p>
-
-      <div class="grid">
-        <div class="field">
-          <label for="locationSnow">Location (مقدار Ps)</label>
-          <select id="locationSnow">
-            <option value="" selected disabled>انتخاب کنید...</option>
-            <option value="1">1 → 0.25</option>
-            <option value="2">2 → 0.5</option>
-            <option value="3">3 → 1</option>
-            <option value="4">4 → 1.5</option>
-            <option value="5">5 → 2</option>
-            <option value="6">6 → 3</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="dangerSnow">Danger (ضریب Is)</label>
-          <select id="dangerSnow">
-            <option value="" selected disabled>انتخاب کنید...</option>
-            <option value="1">1 → 1.2</option>
-            <option value="2">2 → 1.1</option>
-            <option value="3">3 → 1.0</option>
-            <option value="4">4 → 0.8</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="nahieSnow">ناحیه</label>
-          <select id="nahieSnow">
-            <option value="" selected disabled>انتخاب کنید...</option>
-            <option value="1">1 - پرتراکم</option>
-            <option value="2">2 - باز</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="pSnow">وضعیت برف منطقه</label>
-          <select id="pSnow">
-            <option value="" selected disabled>انتخاب کنید...</option>
-            <option value="1">1 - برف‌گیر</option>
-            <option value="2">2 - نیمه‌برف‌گیر</option>
-            <option value="3">3 - برف‌ریز</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="aSnow">شیب بام a (درجه)</label>
-          <input type="number" id="aSnow" step="any" min="0" placeholder="مثلاً 25" />
-        </div>
-
-        <div class="field">
-          <label for="L1Snow">L1</label>
-          <input type="number" id="L1Snow" step="any" min="0" placeholder="مثلاً 8" />
-        </div>
-
-        <div class="field">
-          <label for="L2Snow">L2</label>
-          <input type="number" id="L2Snow" step="any" min="0" placeholder="مثلاً 6" />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn-primary" id="calcSnowBtn">محاسبه بار برف</button>
-        <button class="btn-secondary" id="resetSnowBtn">پاک کردن</button>
-      </div>
-
-      <div class="result-card" id="snowResultBox">
-        <p class="result-title">نتیجه بار برف</p>
-        <p class="result-line" id="snowLine1"></p>
-        <p class="result-line" id="snowLine2"></p>
-        <p class="result-line" id="snowLine3"></p>
-        <p class="result-line" id="snowLine4"></p>
-        <span class="badge ok" id="snowBadge">محاسبه شد</span>
+      <div class="footer-note" id="formulaNote">
+        حالت طبقات: <code>L = L0 × (0.25 + 4.57 / √(KLL×AT))</code> (با شرط‌ها)
       </div>
     </section>
 
+    <aside class="card side">
+      <h2>راهنما</h2>
+      <p><b>بار زنده (طبقات):</b></p>
+      <ul>
+        <li>اگر <b>L0 ≥ 5</b> → پیام هشدار</li>
+        <li>اگر <b>KLL×AT ≥ 37</b> → فرمول اعمال می‌شود</li>
+        <li>اگر خروجی کمتر از <b>0.4×L0</b> باشد → <b>L = L0</b></li>
+      </ul>
+      <p><b>بار زنده (بام):</b></p>
+      <ul>
+        <li>بازه مجاز <b>0.6 ≤ L0 ≤ 1.5</b></li>
+        <li>فرمول: <code>L = L0 × R1 × R2</code></li>
+      </ul>
+      <p><b>بار برف:</b></p>
+      <ul>
+        <li><code>Pr = Cs × Cn × Ch × Ps × Is</code></li>
+        <li><code>hd = 0.12×Lu^(1/3)×(100Ps+50)^0.25 - 0.5</code></li>
+        <li><code>Pd = γ × hd</code> و <code>w = 4×hd</code></li>
+      </ul>
+    </aside>
   </div>
 
   <script>
-    // =========================
-    // بخش 1: بار زنده کاهش‌یافته
-    // =========================
+    // ===== Elements =====
+    const chipLive = document.getElementById("chipLive");
+    const chipSnow = document.getElementById("chipSnow");
+    const calcTypeInputs = document.querySelectorAll('input[name="calcType"]');
+
+    const mainSubtitle = document.getElementById("mainSubtitle");
+    const liveSection = document.getElementById("liveSection");
+    const snowSection = document.getElementById("snowSection");
+
     const chipFloor = document.getElementById("chipFloor");
     const chipRoof = document.getElementById("chipRoof");
     const modeInputs = document.querySelectorAll('input[name="mode"]');
 
     const floorFields = document.getElementById("floorFields");
     const roofSlopeWrap = document.getElementById("roofSlopeWrap");
+    const formulaNote = document.getElementById("formulaNote");
 
     const L0El = document.getElementById("L0");
     const ATEl = document.getElementById("AT");
     const SEl = document.getElementById("S");
     const memberType = document.getElementById("memberType");
     const kllInfo = document.getElementById("kllInfo");
+
+    // Snow inputs
+    const locationSel = document.getElementById("locationSel");
+    const dangerSel = document.getElementById("dangerSel");
+    const nahieSel = document.getElementById("nahieSel");
+    const pSel = document.getElementById("pSel");
+    const aSnowEl = document.getElementById("aSnow");
+    const L1SnowEl = document.getElementById("L1Snow");
+    const L2SnowEl = document.getElementById("L2Snow");
 
     const calcBtn = document.getElementById("calcBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -395,18 +441,10 @@
     const line3 = document.getElementById("line3");
     const statusBadge = document.getElementById("statusBadge");
 
-    let mode = "floor";
+    let calcType = "live"; // live | snow
+    let mode = "floor";    // floor | roof
 
-    function setMode(newMode){
-      mode = newMode;
-      document.querySelector(`input[name="mode"][value="${mode}"]`).checked = true;
-      chipFloor.classList.toggle("active", mode === "floor");
-      chipRoof.classList.toggle("active", mode === "roof");
-      floorFields.classList.toggle("hidden", mode !== "floor");
-      roofSlopeWrap.classList.toggle("hidden", mode !== "roof");
-      clearResult();
-    }
-
+    // ===== Helpers =====
     function clearResult(){
       resultBox.style.display = "none";
       line1.textContent = "";
@@ -425,163 +463,167 @@
       statusBadge.className = `badge ${badgeClass || ""}`.trim();
     }
 
+    // ===== Mode setters =====
+    function setCalcType(newType){
+      calcType = newType;
+      document.querySelector(`input[name="calcType"][value="${calcType}"]`).checked = true;
+
+      chipLive.classList.toggle("active", calcType === "live");
+      chipSnow.classList.toggle("active", calcType === "snow");
+
+      liveSection.classList.toggle("hidden", calcType !== "live");
+      snowSection.classList.toggle("hidden", calcType !== "snow");
+
+      if(calcType === "live"){
+        mainSubtitle.textContent = "ابتدا حالت محاسبه بار زنده را انتخاب کنید: طبقات یا بام.";
+        setMode(mode);
+      } else {
+        mainSubtitle.textContent = "ورودی‌های بار برف را وارد کنید و محاسبه را انجام دهید.";
+        formulaNote.innerHTML = 'بار برف: <code>Pr = Cs × Cn × Ch × Ps × Is</code> | <code>Pd = γ × hd</code>';
+      }
+      clearResult();
+    }
+
+    function setMode(newMode){
+      mode = newMode;
+      document.querySelector(`input[name="mode"][value="${mode}"]`).checked = true;
+
+      chipFloor.classList.toggle("active", mode === "floor");
+      chipRoof.classList.toggle("active", mode === "roof");
+
+      floorFields.classList.toggle("hidden", mode !== "floor");
+      roofSlopeWrap.classList.toggle("hidden", mode !== "roof");
+
+      if(calcType === "live"){
+        if(mode === "floor"){
+          formulaNote.innerHTML = 'حالت طبقات: <code>L = L0 × (0.25 + 4.57 / √(KLL×AT))</code> (با شرط‌ها)';
+        }else{
+          formulaNote.innerHTML = 'حالت بام: <code>L = L0 × R1 × R2</code> | R1 تابع AT و R2 تابع شیب بام';
+        }
+      }
+      clearResult();
+    }
+
+    // ===== Events =====
     memberType.addEventListener("change", () => {
       kllInfo.textContent = `KLL انتخاب‌شده: ${memberType.value || "-"}`;
     });
+
+    calcTypeInputs.forEach(inp => inp.addEventListener("change", e => setCalcType(e.target.value)));
+    chipLive.addEventListener("click", () => setCalcType("live"));
+    chipSnow.addEventListener("click", () => setCalcType("snow"));
 
     modeInputs.forEach(inp => inp.addEventListener("change", e => setMode(e.target.value)));
     chipFloor.addEventListener("click", () => setMode("floor"));
     chipRoof.addEventListener("click", () => setMode("roof"));
 
     calcBtn.addEventListener("click", () => {
-      const L0 = parseFloat((L0El.value || "").trim());
-      const AT = parseFloat((ATEl.value || "").trim());
+      // ===== بخش بار زنده =====
+      if(calcType === "live"){
+        const L0 = parseFloat((L0El.value || "").trim());
+        const AT = parseFloat((ATEl.value || "").trim());
 
-      if (Number.isNaN(L0) || Number.isNaN(AT) || L0 < 0 || AT < 0){
-        showResult("لطفاً L0 و AT را صحیح وارد کنید.", "", "", "خطا", "danger");
-        return;
-      }
-
-      if(mode === "floor"){
-        const KLL = parseFloat(memberType.value);
-        if (Number.isNaN(KLL)){
-          showResult("لطفاً نوع عضو (KLL) را انتخاب کنید.", "", "", "خطا", "danger");
+        if (Number.isNaN(L0) || Number.isNaN(AT) || L0 < 0 || AT < 0){
+          showResult("لطفاً L0 و AT را صحیح وارد کنید.", "", "", "خطا", "danger");
           return;
         }
 
-        let L = L0;
-        let messages = [];
+        if(mode === "floor"){
+          const KLL = parseFloat(memberType.value);
+          if (Number.isNaN(KLL)){
+            showResult("لطفاً نوع عضو (KLL) را انتخاب کنید.", "", "", "خطا", "danger");
+            return;
+          }
 
-        if (L0 >= 5){
-          messages.push("کاهش بار زنده با این مقدار L0 مجاز نیست.");
-        }
+          let L = L0;
+          let messages = [];
 
-        const product = KLL * AT;
-        if (product >= 37){
-          const calcL = L0 * (0.25 + 4.57 / Math.sqrt(product));
-          if (calcL >= 0.4 * L0){
-            L = calcL;
-            messages.push("فرمول کاهش بار زنده اعمال شد.");
+          if (L0 >= 5) messages.push("کاهش بار زنده با این مقدار L0 مجاز نیست.");
+
+          const product = KLL * AT;
+          if (product >= 37){
+            const calcL = L0 * (0.25 + 4.57 / Math.sqrt(product));
+            if (calcL >= 0.4 * L0){
+              L = calcL;
+              messages.push("فرمول کاهش بار زنده اعمال شد.");
+            }else{
+              L = L0;
+              messages.push("به دلیل کمتر بودن از حد مجاز، L برابر L0 در نظر گرفته شد.");
+            }
           }else{
             L = L0;
-            messages.push("به دلیل کمتر بودن از حد مجاز، L برابر L0 در نظر گرفته شد.");
+            messages.push("چون KLL×AT کمتر از 37 است، کاهش بار اعمال نشد.");
           }
-        }else{
-          L = L0;
-          messages.push("چون KLL×AT کمتر از 37 است، کاهش بار اعمال نشد.");
+
+          showResult(
+            `KLL × AT = ${product.toFixed(3)}`,
+            `مقدار نهایی L = ${L.toFixed(4)}`,
+            messages.join(" | "),
+            L === L0 ? "بدون کاهش" : "کاهش اعمال شد",
+            L === L0 ? "warn" : "ok"
+          );
+        } else {
+          const S = parseFloat((SEl.value || "").trim());
+          if (Number.isNaN(S)){
+            showResult("لطفاً شیب بام (S) را وارد کنید.", "", "", "خطا", "danger");
+            return;
+          }
+
+          if (!(L0 >= 0.6 && L0 <= 1.5)){
+            showResult("مقدار L0 برای بام باید بین 0.6 تا 1.5 باشد.", "", "", "خارج از بازه", "danger");
+            return;
+          }
+
+          let R2;
+          if (S <= 33) R2 = 1;
+          else if (S < 100) R2 = 1.2 - 0.006 * S;
+          else R2 = 0.6;
+
+          let R1;
+          if (AT <= 18) R1 = 1;
+          else if (AT <= 54) R1 = 0.8;
+          else R1 = 0.6;
+
+          const L = L0 * R1 * R2;
+
+          showResult(
+            `R1 = ${R1.toFixed(3)} | R2 = ${R2.toFixed(3)}`,
+            `بار زنده کاهش‌یافته بام: L = ${L.toFixed(4)}`,
+            "فرمول: L = L0 × R1 × R2",
+            "محاسبه شد",
+            "ok"
+          );
         }
-
-        showResult(
-          `KLL × AT = ${product.toFixed(3)}`,
-          `مقدار نهایی L = ${L.toFixed(4)}`,
-          messages.join(" | "),
-          L === L0 ? "بدون کاهش" : "کاهش اعمال شد",
-          L === L0 ? "warn" : "ok"
-        );
-
-      } else {
-        const S = parseFloat((SEl.value || "").trim());
-        if (Number.isNaN(S)){
-          showResult("لطفاً شیب بام (S) را وارد کنید.", "", "", "خطا", "danger");
-          return;
-        }
-
-        if (!(L0 >= 0.6 && L0 <= 1.5)){
-          showResult("مقدار L0 برای بام باید بین 0.6 تا 1.5 باشد.", "", "", "خارج از بازه", "danger");
-          return;
-        }
-
-        let R2;
-        if (S <= 33) R2 = 1;
-        else if (S < 100) R2 = 1.2 - 0.006 * S;
-        else R2 = 0.6;
-
-        let R1;
-        if (AT <= 18) R1 = 1;
-        else if (AT <= 54) R1 = 0.8;
-        else R1 = 0.6;
-
-        const L = L0 * R1 * R2;
-
-        showResult(
-          `R1 = ${R1.toFixed(3)} | R2 = ${R2.toFixed(3)}`,
-          `بار زنده کاهش‌یافته بام: L = ${L.toFixed(4)}`,
-          `فرمول: L = L0 × R1 × R2`,
-          "محاسبه شد",
-          "ok"
-        );
-      }
-    });
-
-    resetBtn.addEventListener("click", () => {
-      L0El.value = "";
-      ATEl.value = "";
-      SEl.value = "";
-      memberType.selectedIndex = 0;
-      kllInfo.textContent = "KLL انتخاب‌شده: -";
-      clearResult();
-      setMode("floor");
-    });
-
-    setMode("floor");
-
-    // =========================
-    // بخش 2: بار برف
-    // =========================
-    const locationSnow = document.getElementById("locationSnow");
-    const dangerSnow = document.getElementById("dangerSnow");
-    const nahieSnow = document.getElementById("nahieSnow");
-    const pSnow = document.getElementById("pSnow");
-    const aSnow = document.getElementById("aSnow");
-    const l1Snow = document.getElementById("L1Snow");
-    const l2Snow = document.getElementById("L2Snow");
-
-    const calcSnowBtn = document.getElementById("calcSnowBtn");
-    const resetSnowBtn = document.getElementById("resetSnowBtn");
-
-    const snowResultBox = document.getElementById("snowResultBox");
-    const snowLine1 = document.getElementById("snowLine1");
-    const snowLine2 = document.getElementById("snowLine2");
-    const snowLine3 = document.getElementById("snowLine3");
-    const snowLine4 = document.getElementById("snowLine4");
-
-    function clearSnowResult(){
-      snowResultBox.style.display = "none";
-      snowLine1.textContent = "";
-      snowLine2.textContent = "";
-      snowLine3.textContent = "";
-      snowLine4.textContent = "";
-    }
-
-    calcSnowBtn.addEventListener("click", () => {
-      const LocationMap = {1:0.25,2:0.5,3:1,4:1.5,5:2,6:3};
-      const DangerMap = {1:1.2,2:1.1,3:1,4:0.8};
-
-      const locKey = parseInt(locationSnow.value);
-      const dangerKey = parseInt(dangerSnow.value);
-      const nahie = parseInt(nahieSnow.value);
-      const pType = parseInt(pSnow.value);
-      const a = parseFloat((aSnow.value || "").trim());
-      const L1 = parseFloat((l1Snow.value || "").trim());
-      const L2 = parseFloat((l2Snow.value || "").trim());
-
-      if ([locKey,dangerKey,nahie,pType].some(v => Number.isNaN(v)) ||
-          [a,L1,L2].some(v => Number.isNaN(v) || v < 0)) {
-        alert("لطفاً همه ورودی‌های بخش بار برف را صحیح وارد کنید.");
         return;
       }
 
-      const Ps = LocationMap[locKey];
-      const Is = DangerMap[dangerKey];
+      // ===== بخش بار برف (تبدیل از پایتون) =====
+      const Ps = parseFloat(locationSel.value);
+      const Is = parseFloat(dangerSel.value);
+      const Nahie = parseInt(nahieSel.value, 10);
+      const P = parseInt(pSel.value, 10);
+      const a = parseFloat((aSnowEl.value || "").trim());
+      const L1 = parseFloat((L1SnowEl.value || "").trim());
+      const L2 = parseFloat((L2SnowEl.value || "").trim());
 
+      if (
+        Number.isNaN(Ps) || Number.isNaN(Is) || Number.isNaN(Nahie) || Number.isNaN(P) ||
+        Number.isNaN(a) || Number.isNaN(L1) || Number.isNaN(L2) ||
+        a < 0 || L1 < 0 || L2 < 0
+      ){
+        showResult("لطفاً همه ورودی‌های بار برف را صحیح وارد کنید.", "", "", "خطا", "danger");
+        return;
+      }
+
+      // Cn بر اساس ناحیه و P
       let Cn;
-      if (nahie === 1){ // پرتراکم
-        if (pType === 1) Cn = 1.1;
-        else if (pType === 2) Cn = 1.0;
+      if (Nahie === 1){ // پرتراکم
+        if (P === 1) Cn = 1.1;
+        else if (P === 2) Cn = 1.0;
         else Cn = 0.9;
       } else { // باز
-        if (pType === 1) Cn = 1.0;
-        else if (pType === 2) Cn = 0.9;
+        if (P === 1) Cn = 1.0;
+        else if (P === 2) Cn = 0.9;
         else Cn = 0.8;
       }
 
@@ -594,33 +636,46 @@
       else Cs = 0;
 
       const Pr = Cs * Cn * Ch * Ps * Is;
-
       const Lu = Math.max(L1, L2);
       const hd = 0.12 * Math.pow(Lu, 1/3) * Math.pow(100 * Ps + 50, 0.25) - 0.5;
       const gama = 0.43 * Ps + 2.2;
       const Pd = gama * hd;
       const w = 4 * hd;
 
-      snowLine1.textContent = `Ps = ${Ps.toFixed(3)} | Is = ${Is.toFixed(3)} | Cn = ${Cn.toFixed(3)} | Cs = ${Cs.toFixed(3)} | Ch = ${Ch.toFixed(3)}`;
-      snowLine2.textContent = `Pr = ${Pr.toFixed(4)}`;
-      snowLine3.textContent = `Lu = ${Lu.toFixed(3)} | hd = ${hd.toFixed(4)} | γ = ${gama.toFixed(4)}`;
-      snowLine4.textContent = `Pd = ${Pd.toFixed(4)} | w = ${w.toFixed(4)}`;
-
-      snowResultBox.style.display = "block";
+      showResult(
+        `Pr = ${Pr.toFixed(4)} | Cs=${Cs.toFixed(3)} | Cn=${Cn.toFixed(3)} | Ps=${Ps.toFixed(3)} | Is=${Is.toFixed(3)}`,
+        `hd = ${hd.toFixed(4)} | γ = ${gama.toFixed(4)} | Pd = ${Pd.toFixed(4)}`,
+        `w = ${w.toFixed(4)} | Lu = ${Lu.toFixed(3)}`,
+        "محاسبه شد",
+        "ok"
+      );
     });
 
-    resetSnowBtn.addEventListener("click", () => {
-      locationSnow.selectedIndex = 0;
-      dangerSnow.selectedIndex = 0;
-      nahieSnow.selectedIndex = 0;
-      pSnow.selectedIndex = 0;
-      aSnow.value = "";
-      l1Snow.value = "";
-      l2Snow.value = "";
-      clearSnowResult();
+    resetBtn.addEventListener("click", () => {
+      // Live
+      L0El.value = "";
+      ATEl.value = "";
+      SEl.value = "";
+      memberType.selectedIndex = 0;
+      kllInfo.textContent = "KLL انتخاب‌شده: -";
+
+      // Snow
+      locationSel.selectedIndex = 0;
+      dangerSel.selectedIndex = 0;
+      nahieSel.selectedIndex = 0;
+      pSel.selectedIndex = 0;
+      aSnowEl.value = "";
+      L1SnowEl.value = "";
+      L2SnowEl.value = "";
+
+      clearResult();
+      setCalcType("live");
+      setMode("floor");
     });
 
-    clearSnowResult();
+    // init
+    setCalcType("live");
+    setMode("floor");
   </script>
 </body>
 </html>
